@@ -1,0 +1,35 @@
+# Code amont : déjà sur GitHub (Metropolis2/pymetropolis, Metropolis2/Metropolis-Core)
+/pymetropolis/
+/Metropolis-Core/
+/otp/
+
+# Données (entrées et sorties de simulation) : non publiées
+/bassin/data/
+/data_frontaliers/
+*.parquet
+*.geoparquet
+*.pbf
+*.osm
+*.csv
+*.geojson
+*.gpkg
+*.zip
+*.db
+
+# Notes internes / locales
+/ORGANISATION.md
+/docs/email_equipe_frontaliers_allemagne.md
+/.claude/
+
+# Environnements et artefacts
+.venv/
+__pycache__/
+*.py[oc]
+target/
+
+# PDF contenant encore l adresse du serveur du labo (la version .md est publiée)
+/docs/pymetropolis_exercices_partie_a.pdf
+/docs/pymetropolis_partie_c_d_guide_codage.pdf
+
+# Extrait de document tiers (droits d auteur)
+/docs/congested_travel_time_calibration.pdf

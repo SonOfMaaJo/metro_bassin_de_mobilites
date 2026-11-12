@@ -1,0 +1,278 @@
+# File: config-bassin.toml
+main_directory = "./bassin2021/output"
+crs = "EPSG:2154"
+osm_file = "./bassin/data/bassin_mobilite_ge_sgp2026.osm.pbf"
+
+gtfs_files = [
+	"bassin/data/gtfs/REGION_GRANDEST.gtfs.zip",
+	"bassin/data/gtfs/google_transit.zip",
+	"bassin/data/gtfs/LEMET-gtfs.zip",
+	"bassin/data/gtfs/TIM.GTFS.zip",
+]
+
+simulation_ratio = 0.1
+
+[metropolis_core]
+exec_path = "Metropolis-Core/target/release/metropolis_cli"
+routing_exec_path = "Metropolis-Core/target/release/routing_cli"
+
+[simulation_area]
+# SimulationAreaFromPolygonsStep : union des polygones des 817 communes du bassin de
+# mobilité (BASSIN_MOBILITE_GE_SGP2026.xlsx), extraits depuis l'OSM d'origine par ref:INSEE
+# (cf. extract_communes.py). Remplace l'ancien filtre par département (osm_admin_level/osm_name).
+polygon_file = "bassin/data/simulation_area_communes.geojson"
+
+[osm_urban_areas]
+urban_landuse_tags = [
+	"commercial",
+	"construction",
+	"education",
+	"industrial",
+	"residential",
+	"retail",
+	"village_green",
+	"recreation_ground",
+	"garages",
+	"religious",
+]
+buffer = 50
+
+[osm_road_import]
+highways = [
+	"motorway",
+	"motorway_link",
+	"trunk",
+	"trunk_link",
+	"primary",
+	"primary_link",
+	"secondary",
+	"secondary_link",
+	"tertiary",
+	"tertiary_link",
+	"living_street",
+	"unclassified",
+	"residential",
+]
+simulation_area_filter = true
+simulation_area_buffer = 8000
+
+[road_network]
+min_lanes = 0.5
+min_speed_limit = 10
+min_length = 1
+remove_duplicates = false
+ensure_connected = true
+reindex = true
+forbidden_types = ["motorway", "motorway_link", "trunk", "trunk_link"]
+secondary_types = [
+	"unclassified",
+	"residential",
+]
+
+ensure_primary_connected = true
+penalty_coefficients_file = "bassin/data/edges_penalty_coefficients.csv"
+
+[road_network.default_speed_limit.rural]
+motorway = 130
+trunk = 110
+primary = 80
+secondary = 80
+tertiary = 70
+motorway_link = 70
+trunk_link = 50
+primary_link = 50
+secondary_link = 50
+tertiary_link = 50
+living_street = 20
+unclassified = 50
+residential = 50
+
+# Default speed limit per roadtype, in km/h, in urban areas.
+[road_network.default_speed_limit.urban]
+motorway = 130
+trunk = 90
+primary = 50
+secondary = 50
+tertiary = 30
+motorway_link = 50
+trunk_link = 50
+primary_link = 50
+secondary_link = 50
+tertiary_link = 30
+living_street = 20
+unclassified = 30
+residential = 30
+#road = 20
+#service = 20
+
+# Default number of lanes per roadtype.
+[road_network.default_lanes]
+motorway = 3
+trunk = 2
+primary = 1
+secondary = 1
+tertiary = 1
+motorway_link = 1
+trunk_link = 1
+primary_link = 1
+secondary_link = 1
+tertiary_link = 1
+living_street = 1
+unclassified = 1
+residential = 1
+#road = 1
+#service = 1
+
+[road_network.capacities]
+motorway = 2000.0
+trunk = 2000.0
+primary = 1800.0
+secondary = 1500.0
+tertiary = 1200.0
+motorway_link = 1800.0
+trunk_link = 1800.0
+primary_link = 1800.0
+secondary_link = 1500.0
+tertiary_link = 1200.0
+living_street = 900.0
+unclassified = 1200.0
+residential = 1200.0
+#road = 300
+#service = 300
+# traffic_signals_factor = 0.5
+# roundabout_factor = 0.75
+
+[road_network.calibration_variables]
+[road_network.calibration_variables.lanes]
+type = "intervals"
+cuts = [1, 2, 3]  # 1 lane, 2 lanes, 3 lanes, 3+ lanes
+
+[road_network.calibration_variables.speed_limit]
+type = "intervals"
+cuts = [30, 50, 70, 80, 90, 110]
+
+[road_network.calibration_variables.edge_type]
+type = "categories"
+[road_network.calibration_variables.edge_type.map]
+motorway = "motorway"
+motorway_link = "motorway_link"
+trunk = "trunk"
+trunk_link = "trunk_link"
+primary = "primary"
+primary_link = "primary_link"
+secondary = "secondary"
+secondary_link = "secondary"
+tertiary = "tertiary"
+tertiary_link = "tertiary"
+living_street = "living_street"
+residential = "residential"
+unclassified = "unclassified"
+#service = "residential"
+#road = "unclassified"
+
+[osm_pedestrian_import]
+highways = [
+  "trunk",
+  "trunk_link",
+  "primary",
+  "primary_link",
+  "secondary",
+  "secondary_link",
+  "tertiary",
+  "tertiary_link",
+  "living_street",
+  "unclassified",
+  "residential",
+  "road",
+  "service",
+  "track",
+  "footway",
+  "path",
+  "pedestrian",
+]
+simulation_area_filter = true
+simulation_area_buffer = 1000
+
+[pedestrian_network]
+# Whether the duplicate edges (edges with same source and target) should be removed.
+# Only the edge with the smallest distance is kept.
+remove_duplicates = true
+# Whether the network should be restricted to the largest strongly connected component of the
+# underlying graph.
+# Warning. If `false`, some origin-destination pairs might not be feasible.
+ensure_connected = true
+# If `true`, the edges are re-index after the postprocessing so that they are indexed from 0 to n-1.
+reindex = false
+# Edges' types that cannot be used as origin / destination nodes.
+forbidden_types = ["trunk", "trunk_link"]
+
+[pedestrian_routing]
+output_path = false
+
+[synthetic_population]
+eqasim_output = "bassin2021/data/output_eqasim/"
+fraction = 0.1
+
+[fuel]
+consumption_factor = 0.08
+price = 1.9
+
+[vehicle_types]
+[vehicle_types.car]
+headway = 8.0
+
+[mode_choice]
+modes = ["car_driver", "car_passenger", "public_transit", "walking", "bicycle"]
+model = "Logit"
+mu = 1.0
+
+[modes]
+[modes.car_driver]
+preferences_file = "bassin/data/mode_preferences.csv"
+
+[modes.car_passenger]
+preferences_file = "bassin/data/mode_preferences.csv"
+
+[modes.public_transit]
+preferences_file = "bassin/data/mode_preferences.csv"
+
+[modes.walking]
+preferences_file = "bassin/data/mode_preferences.csv"
+speed = 4.0
+snap_speed = 4.0
+
+[modes.walking.distance]
+type = "pedestrian"
+with_snap = true
+
+[modes.bicycle]
+preferences_file = "bassin/data/mode_preferences.csv"
+speed = 12.0
+snap_speed = 4.0
+
+[modes.bicycle.distance]
+type = "pedestrian"
+with_snap = true
+
+[opentripplanner]
+url = "http://0.0.0.0:8080/otp/gtfs/v1"
+date = 2026-09-07
+time_type = "tstar"
+
+[departure_time]
+[departure_time.linear_schedule]
+preferences_file = "bassin/data/linear_schedule_preferences.csv"
+tstar_type = "arrival_time"
+
+[departure_time_choice]
+model = "ContinuousLogit"
+mu = 1
+
+[simulation]
+period = ["03:00:00", "27:00:00"]
+recording_interval = 900
+learning_factor = 0.01
+nb_iterations = 100
+spillback = true
+max_pending_duration = 60
+
